@@ -1,7 +1,7 @@
 # bonmoja-devops-asssessment
 Assessment for bonmoja devops cicd pipeline
 
-```graph TB
+graph TB
     %% Internet and External Access
     Internet([Internet])
     
@@ -111,4 +111,3 @@ Assessment for bonmoja devops cicd pipeline
     class RDS,DynamoDB,SQS,SNS storage
     class Security,ALBSG,ECSSG,RDSSG,IAM,ExecRole,TaskRole security
     class CloudWatch,LogGroup,RDSAlarm,SQSAlarm monitoring
-```
