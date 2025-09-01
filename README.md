@@ -3,77 +3,70 @@ Assessment for bonmoja devops cicd pipeline
 
 ```mermaid
 graph TD
-  %% Simple styles
-  classDef network fill=#D6EAF8,stroke=#2980B9,stroke-width=1px;
-  classDef compute fill=#FADBD8,stroke=#C0392B,stroke-width=1px;
-  classDef db fill=#D5F5E3,stroke=#27AE60,stroke-width=1px;
-  classDef queue fill=#FCF3CF,stroke=#F1C40F,stroke-width=1px;
-  classDef security fill=#F5EEF8,stroke=#8E44AD,stroke-width=1px;
-  classDef monitoring fill=#EBDEF0,stroke=#7D3C98,stroke-width=1px;
 
-  %% VPC Cluster
+  %% VPC
   subgraph VPCCluster[VPC 10.0.0.0/16]
-    VPC[VPC]:::network
-    PublicSubnets[Public Subnets<br/>10.0.101.0/24, 10.0.102.0/24]:::network
-    PrivateSubnets[Private Subnets<br/>10.0.1.0/24, 10.0.2.0/24]:::network
+    VPC[VPC]
+    PublicSubnets[Public Subnets: 10.0.101.0/24, 10.0.102.0/24]
+    PrivateSubnets[Private Subnets: 10.0.1.0/24, 10.0.2.0/24]
     VPC --> PublicSubnets
     VPC --> PrivateSubnets
   end
 
-  %% ALB Cluster
+  %% ALB
   subgraph ALBCluster[Load Balancer]
-    ALB[Application Load Balancer]:::compute
-    SGALB[SG: ALB]:::security
+    ALB[Application Load Balancer]
+    SGALB[Security Group: ALB]
     ALB --> SGALB
   end
 
-  %% ECS Cluster
+  %% ECS
   subgraph ECSClusterGroup[ECS (Fargate)]
-    ECSCluster[ECS Cluster]:::compute
-    ECSService[ECS Service]:::compute
-    ECSTask[ECS Task: http-echo]:::compute
-    SGECS[SG: ECS]:::security
+    ECSCluster[ECS Cluster]
+    ECSService[ECS Service]
+    ECSTask[ECS Task: http-echo]
+    SGECS[Security Group: ECS]
     ECSCluster --> ECSService
     ECSService --> ECSTask
     ECSService --> SGECS
   end
 
-  %% RDS Cluster
+  %% RDS
   subgraph RDSCluster[Database Layer]
-    RDS[(RDS PostgreSQL)]:::db
-    SGRDS[SG: RDS]:::security
+    RDS[(RDS PostgreSQL)]
+    SGRDS[Security Group: RDS]
     RDS --> SGRDS
   end
 
   %% Other Services
   subgraph OtherServices[Other Services]
-    DDB[(DynamoDB Table)]:::db
-    SQS[(SQS Queue)]:::queue
-    SNS[(SNS Topic)]:::queue
-    Email[Email Subscription<br/>charlinmartin@gmail.com]
+    DDB[(DynamoDB Table)]
+    SQS[(SQS Queue)]
+    SNS[(SNS Topic)]
+    Email[Email Subscription: charlinmartin@gmail.com]
     SNS --> Email
   end
 
   %% IAM
   subgraph IAMCluster[IAM Roles]
-    IAMExec[IAM Role: ECS Execution]:::security
-    IAMTask[IAM Role: ECS Task]:::security
+    IAMExec[IAM Role: ECS Execution]
+    IAMTask[IAM Role: ECS Task]
     ECSTask --> IAMExec
     ECSTask --> IAMTask
   end
 
   %% CloudWatch
   subgraph Monitoring[Monitoring & Logs]
-    CWLogs[CloudWatch Logs]:::monitoring
-    CWAlarmRDS[Alarm: RDS CPU > 80%]:::monitoring
-    CWAlarmSQS[Alarm: SQS Depth > 100]:::monitoring
+    CWLogs[CloudWatch Logs]
+    CWAlarmRDS[Alarm: RDS CPU > 80%]
+    CWAlarmSQS[Alarm: SQS Depth > 100]
     ECSService --> CWLogs
     RDS --> CWAlarmRDS
     SQS --> CWAlarmSQS
   end
 
   %% Output
-  Output[Output: ALB DNS]:::compute
+  Output[Output: ALB DNS]
   ALB --> Output
 
   %% Connections
@@ -85,4 +78,5 @@ graph TD
   ECSService --> DDB
   ECSService --> SQS
   ECSService --> SNS
+
   ```
