@@ -27,11 +27,11 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build and push image
-        run: |
-          ECR_REG=${{ steps.login-ecr.outputs.registry }}
-          IMAGE_URI="bonmoja-app:latest"
-          docker build -t "${IMAGE_URI}" .
-          docker push "${IMAGE_URI}"
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/bonmoja-staging-repo:bonmoja-app:latest
       - name: Terraform apply
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init & apply
