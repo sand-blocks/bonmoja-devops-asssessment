@@ -21,10 +21,10 @@ graph TD
   end
 
   %% ECS
-  subgraph ECSClusterGroup[ECS (Fargate)]
+  subgraph ECSClusterGroup[ECS Fargate]
     ECSCluster[ECS Cluster]
     ECSService[ECS Service]
-    ECSTask[ECS Task: http-echo]
+    ECSTask[ECS Task http-echo]
     SGECS[Security Group: ECS]
     ECSCluster --> ECSService
     ECSService --> ECSTask
@@ -33,16 +33,16 @@ graph TD
 
   %% RDS
   subgraph RDSCluster[Database Layer]
-    RDS[(RDS PostgreSQL)]
+    RDS[RDS PostgreSQL]
     SGRDS[Security Group: RDS]
     RDS --> SGRDS
   end
 
   %% Other Services
   subgraph OtherServices[Other Services]
-    DDB[(DynamoDB Table)]
-    SQS[(SQS Queue)]
-    SNS[(SNS Topic)]
+    DDB[DynamoDB Table]
+    SQS[SQS Queue]
+    SNS[SNS Topic]
     Email[Email Subscription: charlinmartin@gmail.com]
     SNS --> Email
   end
@@ -56,10 +56,10 @@ graph TD
   end
 
   %% CloudWatch
-  subgraph Monitoring[Monitoring & Logs]
+  subgraph Monitoring[Monitoring and Logs]
     CWLogs[CloudWatch Logs]
-    CWAlarmRDS[Alarm: RDS CPU > 80%]
-    CWAlarmSQS[Alarm: SQS Depth > 100]
+    CWAlarmRDS[Alarm RDS CPU > 80%]
+    CWAlarmSQS[Alarm SQS Depth > 100]
     ECSService --> CWLogs
     RDS --> CWAlarmRDS
     SQS --> CWAlarmSQS
@@ -78,5 +78,6 @@ graph TD
   ECSService --> DDB
   ECSService --> SQS
   ECSService --> SNS
+
 
   ```
