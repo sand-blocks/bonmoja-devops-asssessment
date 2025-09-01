@@ -78,6 +78,4 @@ graph TD
   ECSService --> DDB
   ECSService --> SQS
   ECSService --> SNS
-
-
   ```
