@@ -3,12 +3,13 @@ Assessment for bonmoja devops cicd pipeline
 
 ```mermaid
 graph TD
-  %% Style
-  classDef aws fill=#FF9900,stroke=#232F3E,stroke-width=1px,color=#fff,font-weight:bold;
-  classDef network fill=#146EB4,stroke=#232F3E,stroke-width=1px,color=#fff,font-weight:bold;
-  classDef db fill=#4DB33D,stroke=#232F3E,stroke-width=1px,color=#fff,font-weight:bold;
-  classDef queue fill=#FFCC00,stroke=#232F3E,stroke-width=1px,color=#000,font-weight:bold;
-  classDef security fill=#DD2C00,stroke=#232F3E,stroke-width=1px,color=#fff,font-weight:bold;
+  %% Simple styles
+  classDef network fill=#D6EAF8,stroke=#2980B9,stroke-width=1px;
+  classDef compute fill=#FADBD8,stroke=#C0392B,stroke-width=1px;
+  classDef db fill=#D5F5E3,stroke=#27AE60,stroke-width=1px;
+  classDef queue fill=#FCF3CF,stroke=#F1C40F,stroke-width=1px;
+  classDef security fill=#F5EEF8,stroke=#8E44AD,stroke-width=1px;
+  classDef monitoring fill=#EBDEF0,stroke=#7D3C98,stroke-width=1px;
 
   %% VPC Cluster
   subgraph VPCCluster[VPC 10.0.0.0/16]
@@ -20,17 +21,17 @@ graph TD
   end
 
   %% ALB Cluster
-  subgraph ALBCluster[Load Balancing]
-    ALB[Application Load Balancer]:::aws
+  subgraph ALBCluster[Load Balancer]
+    ALB[Application Load Balancer]:::compute
     SGALB[SG: ALB]:::security
     ALB --> SGALB
   end
 
   %% ECS Cluster
   subgraph ECSClusterGroup[ECS (Fargate)]
-    ECSCluster[ECS Cluster]:::aws
-    ECSService[ECS Service]:::aws
-    ECSTask[ECS Task: http-echo]:::aws
+    ECSCluster[ECS Cluster]:::compute
+    ECSService[ECS Service]:::compute
+    ECSTask[ECS Task: http-echo]:::compute
     SGECS[SG: ECS]:::security
     ECSCluster --> ECSService
     ECSService --> ECSTask
@@ -44,8 +45,8 @@ graph TD
     RDS --> SGRDS
   end
 
-  %% Other Services Cluster
-  subgraph OtherServices[Supporting Services]
+  %% Other Services
+  subgraph OtherServices[Other Services]
     DDB[(DynamoDB Table)]:::db
     SQS[(SQS Queue)]:::queue
     SNS[(SNS Topic)]:::queue
@@ -53,26 +54,26 @@ graph TD
     SNS --> Email
   end
 
-  %% IAM Cluster
-  subgraph IAMCluster[Security & IAM]
+  %% IAM
+  subgraph IAMCluster[IAM Roles]
     IAMExec[IAM Role: ECS Execution]:::security
     IAMTask[IAM Role: ECS Task]:::security
     ECSTask --> IAMExec
     ECSTask --> IAMTask
   end
 
-  %% CloudWatch Cluster
-  subgraph Monitoring[Monitoring & Logging]
-    CWLogs[CloudWatch Logs]:::aws
-    CWAlarmRDS[Alarm: RDS CPU > 80%]:::aws
-    CWAlarmSQS[Alarm: SQS Depth > 100]:::aws
+  %% CloudWatch
+  subgraph Monitoring[Monitoring & Logs]
+    CWLogs[CloudWatch Logs]:::monitoring
+    CWAlarmRDS[Alarm: RDS CPU > 80%]:::monitoring
+    CWAlarmSQS[Alarm: SQS Depth > 100]:::monitoring
     ECSService --> CWLogs
     RDS --> CWAlarmRDS
     SQS --> CWAlarmSQS
   end
 
-  %% Outputs
-  Output[Output: ALB DNS]:::aws
+  %% Output
+  Output[Output: ALB DNS]:::compute
   ALB --> Output
 
   %% Connections
