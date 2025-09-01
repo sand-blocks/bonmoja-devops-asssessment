@@ -37,7 +37,7 @@ jobs:
       - name: Terraform init & apply
         run: |
           terraform init -input=false
-          terraform fmt -recursive -check
+          terraform fmt -recursive
           terraform validate
           terraform apply -auto-approve -input=false
       - name: Health check

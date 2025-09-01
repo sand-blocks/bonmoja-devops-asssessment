@@ -1,32 +1,32 @@
 variable "project_name" {
-	type = string
-	description = "name of the project"
-	default = "bonmoja"
+  type        = string
+  description = "name of the project"
+  default     = "bonmoja"
 }
 
 variable "infra_environment" {
-	type = string
-	description = "infrastructure environment"
-	default = "staging"
+  type        = string
+  description = "infrastructure environment"
+  default     = "staging"
 }
 
 variable "default_region" {
-	type = string
-	description = "region for resources to be located in"
-	default = "af-south-1"
+  type        = string
+  description = "region for resources to be located in"
+  default     = "af-south-1"
 }
 
 
 ## VPC with public/private subnets, routing tables, and a NAT gateway
 module "vpc" {
-	source = "./modules/vpc"
-	
-	azs = ["${var.default_region}a", "${var.default_region}b"]
-	public_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
-	private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-	vpc_cidr = "10.0.0.0/16"
-	project_name = var.project_name
-	infra_environment = var.infra_environment
+  source = "./modules/vpc"
+
+  azs               = ["${var.default_region}a", "${var.default_region}b"]
+  public_subnets    = ["10.0.101.0/24", "10.0.102.0/24"]
+  private_subnets   = ["10.0.1.0/24", "10.0.2.0/24"]
+  vpc_cidr          = "10.0.0.0/16"
+  project_name      = var.project_name
+  infra_environment = var.infra_environment
 }
 
 #### CM 2025-08-31 Decision made to forego using a modular design approach going forward due to time contrainst
@@ -56,9 +56,9 @@ resource "aws_ecs_task_definition" "task" {
   task_role_arn            = aws_iam_role.ecs_task.arn
 
   container_definitions = jsonencode([{
-		name = "${var.project_name}-${var.infra_environment}-http-echo"
-    image     = "hashicorp/http-echo"
-    essential = true
+    name         = "${var.project_name}-${var.infra_environment}-http-echo"
+    image        = "hashicorp/http-echo"
+    essential    = true
     portMappings = [{ containerPort = 5678, hostPort = 5678 }]
     logConfiguration = {
       logDriver = "awslogs"
@@ -73,15 +73,15 @@ resource "aws_ecs_task_definition" "task" {
 
 ### Service
 resource "aws_ecs_service" "service" {
-  name = "${var.project_name}-${var.infra_environment}-http-echo-service"
+  name            = "${var.project_name}-${var.infra_environment}-http-echo-service"
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.task.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = module.vpc.vpc_private_subnets
-    security_groups = [aws_security_group.ecs.id]
+    subnets          = module.vpc.vpc_private_subnets
+    security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = false
   }
 
@@ -94,7 +94,7 @@ resource "aws_ecs_service" "service" {
 
 ### ALB
 resource "aws_lb" "alb" {
-  name = "${var.project_name}-${var.infra_environment}-alb"
+  name               = "${var.project_name}-${var.infra_environment}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -102,10 +102,10 @@ resource "aws_lb" "alb" {
 }
 
 resource "aws_lb_target_group" "alb_tg" {
-  name     = "${var.project_name}-${var.infra_environment}-http-echo-tg"
-  port     = 5678
-  protocol = "HTTP"
-  vpc_id   = module.vpc.vpc_id
+  name        = "${var.project_name}-${var.infra_environment}-http-echo-tg"
+  port        = 5678
+  protocol    = "HTTP"
+  vpc_id      = module.vpc.vpc_id
   target_type = "ip"
 }
 
@@ -125,15 +125,15 @@ resource "aws_lb_listener" "alb_listener" {
 ## RDS (PostgreSQL) instance in private subnets
 
 resource "aws_db_subnet_group" "db_subnet_group" {
-  name       = "${var.project_name}-${var.infra_environment}-rds-subnet-group"
-  subnet_ids = module.vpc.vpc_private_subnets
+  name        = "${var.project_name}-${var.infra_environment}-rds-subnet-group"
+  subnet_ids  = module.vpc.vpc_private_subnets
   description = "RDS subnet group for private subnets"
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = var.infra_environment
-		Project = var.project_name
-		Type = "RDS subnet group"  
-	}
+    Project     = var.project_name
+    Type        = "RDS subnet group"
+  }
 }
 
 module "rds" {
@@ -142,26 +142,26 @@ module "rds" {
 
   identifier = "${var.project_name}-${var.infra_environment}-postgres-rds"
 
-  engine         = "postgres"
-  engine_version = "17"
-  instance_class = "db.t3.micro"
-  allocated_storage = 20
-  db_name  = "bonmojadb"
-  username = "groot"
-  password = "Th!s!sN0tTh3P@ssw0rd"
-  port     = 5432
-	db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
+  engine                 = "postgres"
+  engine_version         = "17"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 20
+  db_name                = "bonmojadb"
+  username               = "groot"
+  password               = "Th!s!sN0tTh3P@ssw0rd"
+  port                   = 5432
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   subnet_ids             = module.vpc.vpc_private_subnets
-  family = "postgres17"
-  publicly_accessible = false
-  skip_final_snapshot = true
+  family                 = "postgres17"
+  publicly_accessible    = false
+  skip_final_snapshot    = true
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = var.infra_environment
-		Project = var.project_name
-		Type = "RDS"
+    Project     = var.project_name
+    Type        = "RDS"
   }
 }
 
@@ -179,11 +179,11 @@ resource "aws_dynamodb_table" "table" {
     type = "S"
   }
 
-	tags = {
-    Terraform = "true"
+  tags = {
+    Terraform   = "true"
     Environment = var.infra_environment
-		Project = var.project_name
-		Type = "DynamoDB"
+    Project     = var.project_name
+    Type        = "DynamoDB"
   }
 }
 
@@ -215,8 +215,8 @@ resource "aws_iam_role" "ecs_execution" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
       Principal = { Service = "ecs-tasks.amazonaws.com" }
     }]
   })
@@ -232,8 +232,8 @@ resource "aws_iam_role" "ecs_task" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
       Principal = { Service = "ecs-tasks.amazonaws.com" }
     }]
   })
@@ -244,9 +244,9 @@ resource "aws_iam_role_policy" "ecs_task_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
-      Action = ["sqs:SendMessage", "sns:Publish"]
-      Resource = ["*"]  # Tighten in prod
+      Effect   = "Allow"
+      Action   = ["sqs:SendMessage", "sns:Publish"]
+      Resource = ["*"] # Tighten in prod
     }]
   })
 }
@@ -293,7 +293,7 @@ resource "aws_security_group" "ecs" {
 }
 
 resource "aws_security_group" "rds" {
-  name = "${var.project_name}-${var.infra_environment}-rds-sg"
+  name   = "${var.project_name}-${var.infra_environment}-rds-sg"
   vpc_id = module.vpc.vpc_id
 
   ingress {
