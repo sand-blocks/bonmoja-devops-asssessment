@@ -1,8 +1,7 @@
 # bonmoja-devops-asssessment
 Assessment for bonmoja devops cicd pipeline
 
-```mermaid
-graph TB
+```graph TB
     %% Internet and External Access
     Internet([Internet])
     
