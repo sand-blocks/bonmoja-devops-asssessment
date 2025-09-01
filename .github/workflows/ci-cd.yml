@@ -1,0 +1,47 @@
+name: ci-cd
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  PROJECT_NAME: bonmoja
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build and push image
+        run: |
+          ECR_REG=${{ steps.login-ecr.outputs.registry }}
+          IMAGE_URI="bonmoja-staging0-ecr/bonmoja-app:latest"
+          docker build -t "${IMAGE_URI}" .
+          docker push "${IMAGE_URI}"
+      - name: Terraform apply
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform init & apply
+        run: |
+          cd terraform
+          terraform init -input=false
+          terraform fmt -recursive -check
+          terraform validate
+          terraform apply -auto-approve -input=false
+      - name: Health check
+        run: |
+          URL=$(cd terraform && terraform output -raw ecs_service_url || true)
+          bash scripts/health_check.sh "$URL"
+
