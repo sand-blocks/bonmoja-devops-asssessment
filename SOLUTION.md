@@ -49,10 +49,11 @@ The goal of this assessment is to simulate a simple messaging system using a HTT
 
 ## Future work TODOs
 - Refactor Terraform and create modules for all resources, would make maintaining and readibility way better
-- Add **Route53 + TLS** via ACM, HTTPS on ALB.
-- Add **autoscaling** policies for ECS on CPU/ReqPerTarget.
-- Blue/Green with **CodeDeploy** for zero-downtime deploys.
+- Add Route53 + TLS via ACM, HTTPS on ALB.
+- Add autoscaling policies for ECS on CPU/ReqPerTarget.
+- Blue/Green with CodeDeploy for zero-downtime deploys.
 - RDS replica set / Multi-AZ for HA.
-- Terraform **remote backend** (S3 bucket).
+- Terraform remote backend (S3 bucket).
 - Health script to send notifications to obs team on failures
 - Rollback strategies for when things go wrong
+- Multiple branches on Git for repo
