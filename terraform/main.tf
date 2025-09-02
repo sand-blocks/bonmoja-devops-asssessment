@@ -57,7 +57,7 @@ resource "aws_ecs_task_definition" "task" {
 
   container_definitions = jsonencode([{
     name         = "${var.project_name}-${var.infra_environment}-http-echo"
-    image        = "hashicorp/http-echo"
+    image        = aws_ecr_repository.repo.name
     essential    = true
     portMappings = [{ containerPort = 5678, hostPort = 5678 }]
     logConfiguration = {
