@@ -36,6 +36,9 @@ The goal of this assessment is to simulate a simple messaging system using a HTT
 
 ## Cost optimization
 
+**TODO**
+- NB: Budgets should be setup for the entire project to track costs
+
 **Actionable strategies**
 1. **Use Fargate Spot for ECS tasks** (up to ~70% savings). *Trade-off*: Interruption risk; use for non-critical/HA stateless services.
 2. **DynamoDB On-Demand** vs Provisioned with Auto Scaling based on access patterns.
