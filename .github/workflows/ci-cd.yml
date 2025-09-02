@@ -36,12 +36,13 @@ jobs:
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init & apply
         run: |
+          cd terraform
           terraform init -input=false
           terraform fmt -recursive
           terraform validate
           terraform apply -auto-approve -input=false
       - name: Health check
         run: |
-          URL=$(terraform output -raw alb_dns || true)
-          bash health_check.sh "$URL"
+          URL=$(cd terraform && terraform output -raw alb_dns || true)
+          bash scripts/health_check.sh "$URL"
 
