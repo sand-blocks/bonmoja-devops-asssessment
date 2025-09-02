@@ -1,3 +1,3 @@
 FROM hashicorp/http-echo:latest
-ENTRYPOINT ["/http-echo", "-text=HI BONMOJA, I'M RUNNING ON ECS"]
+ENTRYPOINT ["/http-echo", "-text=HI BONMOJA, I'M RUNNING ON ECS DEMO"]
 
